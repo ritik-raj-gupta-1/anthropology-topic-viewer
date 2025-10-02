@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MID 2 Topic Allotment | Dept. of Anthropology</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- 1. Load the Supabase library first from the CDN -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body {
@@ -17,12 +18,14 @@
 
     <div class="container mx-auto p-4 md:p-8 max-w-4xl">
         <header class="text-center mb-8 bg-white p-6 rounded-lg shadow-md">
-             <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Department of Anthropology</h1>
+             <!-- Header Section -->
+            <h1 class="text-2xl md:text-3xl font-bold text-gray-900">Department of Anthropology</h1>
             <p class="text-md text-gray-600 mt-1">Anthropology - 3rd Semester</p>
             <h2 class="text-xl md:text-2xl font-semibold text-blue-700 mt-4">MID 2 Topic Allotment Viewer</h2>
         </header>
 
         <main class="bg-white p-6 md:p-8 rounded-lg shadow-md">
+            <!-- Enrollment Input Section -->
             <div class="mb-6">
                 <label for="enrollmentId" class="block text-sm font-medium text-gray-700 mb-2">Enter Your Enrollment Number:</label>
                 <div class="flex flex-col sm:flex-row gap-2">
@@ -33,6 +36,7 @@
                 </div>
             </div>
 
+            <!-- Results Display Area -->
             <div id="results" class="hidden min-h-[150px] border-t pt-6"></div>
             
         </main>
@@ -43,18 +47,18 @@
         </footer>
     </div>
 
+    <!-- Use a standard script tag, NOT type="module" -->
     <script>
         // --- Supabase Initialization ---
-        // IMPORTANT: You still need to replace YOUR_SUPABASE_URL with your actual Project URL!
+        // FINAL STEP: The URL has been filled in.
         const SUPABASE_URL = 'https://pmsufcznlrzsftxnksbe.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtc3VmY3pubHJ6c2Z0eG5rc2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzODkwMTgsImV4cCI6MjA3NDk2NTAxOH0.ClARUOecjjes3iEcJY7qylwIjcUg9SUjkwiQYm7GBMA';
 
-        // 3. Destructure createClient from the global supabase object provided by the script tag above
         const { createClient } = supabase;
         let supabaseClient;
 
-        // Check if placeholders are still there and handle it
-        if (SUPABASE_URL === 'https://pmsufcznlrzsftxnksbe.supabase.co') {
+        // This check will now pass, and the database will connect.
+        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { // This condition will now be false
             console.warn("Supabase URL is not set. Data collection will be disabled.");
             document.getElementById('viewTopicsBtn').disabled = true;
             document.getElementById('results').innerHTML = `<p class="text-orange-600 font-medium text-center">Database is not configured. Please contact the administrator.</p>`;
@@ -100,11 +104,11 @@
 * **Unit 4:** Emergence of Human Settlements and Farming in India
 * **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
 **6. ANIYA PARTE** (\`Y24120061\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
+* **Unit 1:** Methods of Studying Archaeological Anthropology
+* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
+* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
+* **Unit 4:** Chief Features of Neolithic Revolution
+* **Unit 5:** Definition and Types of Megaliths
 **7. SATYAM SEN** (\`Y24120062\`)
 * **Unit 1:** Concepts of Prehistory, Proto-History and History
 * **Unit 2:** Pluviation and Inter Pluviation
@@ -1529,3 +1533,4 @@
     </script>
 </body>
 </html>
+
