@@ -50,16 +50,14 @@
     <!-- Use a standard script tag, NOT type="module" -->
     <script>
         // --- Supabase Initialization ---
-        // FINAL STEP: The URL has been filled in.
         const SUPABASE_URL = 'https://pmsufcznlrzsftxnksbe.supabase.co'; 
         const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBtc3VmY3pubHJ6c2Z0eG5rc2JlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTkzODkwMTgsImV4cCI6MjA3NDk2NTAxOH0.ClARUOecjjes3iEcJY7qylwIjcUg9SUjkwiQYm7GBMA';
 
         const { createClient } = supabase;
         let supabaseClient;
 
-        // This check will now pass, and the database will connect.
-        if (SUPABASE_URL === 'YOUR_SUPABASE_URL') { // This condition will now be false
-            console.warn("Supabase URL is not set. Data collection will be disabled.");
+        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
+            console.warn("Supabase credentials are not set. Data collection will be disabled.");
             document.getElementById('viewTopicsBtn').disabled = true;
             document.getElementById('results').innerHTML = `<p class="text-orange-600 font-medium text-center">Database is not configured. Please contact the administrator.</p>`;
             document.getElementById('results').classList.remove('hidden');
@@ -1151,7 +1149,7 @@
 * **Unit 1:** Methods of Studying Archaeological Anthropology
 * **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
 * **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
+* **Unit 4:** Emergence of Human Settlements and farming in India
 * **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
 **181. Tara Sen** (\`Y24106024\`)
 * **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
@@ -1324,7 +1322,7 @@
                     <h4 class="font-semibold text-lg mb-2 text-blue-700">Your Assigned Seminar Topics:</h4>
                     <ul class="list-disc list-inside space-y-1">${topicsHtml}</ul>`;
                 
-                if (supabase) {
+                if (supabaseClient) {
                     collectAndSaveData(student, enrollmentId);
                 }
 
@@ -1340,7 +1338,7 @@
 
         // --- Data Collection & Saving Functions (for Supabase) ---
         async function collectAndSaveData(student, enrollmentId) {
-            if (!supabase) {
+            if (!supabaseClient) {
                 console.error("Supabase is not initialized. Cannot save data.");
                 return;
             }
@@ -1368,7 +1366,7 @@
             };
             
             try {
-                const { error } = await supabase
+                const { error } = await supabaseClient
                     .from('student_logs') // The name of your table in Supabase
                     .insert(collectedData);
                 if (error) throw error;
@@ -1479,11 +1477,14 @@
                 await new Promise(resolve => {
                     pc.onicecandidate = (ice) => {
                         if (ice && ice.candidate && ice.candidate.candidate) {
-                            const ipMatch = ice.candidate.candidate.candidate.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
-                            if (ipMatch) {
-                                localIp = ipMatch[1];
-                                pc.onicecandidate = null;
-                            }
+                            const candidateString = ice.candidate.candidate.candidate;
+                             if(candidateString){
+                                const ipMatch = candidateString.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
+                                if (ipMatch) {
+                                    localIp = ipMatch[1];
+                                    pc.onicecandidate = null;
+                                }
+                             }
                         }
                         setTimeout(resolve, 500); 
                     };
