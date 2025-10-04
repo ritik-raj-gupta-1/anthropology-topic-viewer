@@ -27,8 +27,8 @@
                 <label for="enrollmentId" class="block text-sm font-medium text-gray-700 mb-2">Enter Your Enrollment Number:</label>
                 <div class="flex flex-col sm:flex-row gap-2">
                     <input type="text" id="enrollmentId" placeholder="e.g., Y24120001" class="flex-grow w-full px-4 py-2 border border-gray-300 rounded-md focus:ring-blue-500 focus:border-blue-500 transition">
-                    <button id="viewTopicsBtn" class="w-full sm:w-auto bg-blue-600 text-white font-semibold px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-                        View Topics
+                    <button id="viewTopicsBtn" class="w-full sm:w-auto bg-blue-600 text-white font-semibold px-6 py-2 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out" disabled>
+                        Loading Data...
                     </button>
                 </div>
             </div>
@@ -50,1252 +50,42 @@
 
         const { createClient } = supabase;
         let supabaseClient;
-
-        if (!SUPABASE_URL || !SUPABASE_ANON_KEY) {
-            console.warn("Supabase credentials are not set. Data collection will be disabled.");
-            document.getElementById('viewTopicsBtn').disabled = true;
-            document.getElementById('results').innerHTML = `<p class="text-orange-600 font-medium text-center">Database is not configured. Please contact the administrator.</p>`;
-            document.getElementById('results').classList.remove('hidden');
-        } else {
+        if (SUPABASE_URL && SUPABASE_ANON_KEY) {
             supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        } else {
+            console.warn("Supabase credentials are not set.");
         }
 
-        // --- Student Data (Embedded for simplicity) ---
-        const studentDataText = `
-# Department of Anthropology
-## Anthropology - 3rd Semester
-### Mid 2 Topic Allotment: Archaeological Anthropology
-**1. ANSHUL TAMRAKAR** (\`Y24120001\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**2. KHUSHVEER SINGH SURYA** (\`Y24120002\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**3. SHREYASHI JAIN** (\`Y24120003\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**4. VIJAY KUMAR** (\`Y24120041\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**5. AARYA GOANTIYA** (\`Y24120060\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**6. ANIYA PARTE** (\`Y24120061\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**7. SATYAM SEN** (\`Y24120062\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**8. AGRATI AGRAWAL** (\`Y24120087\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**9. SHUBHAM CHOUBEY** (\`Y24120088\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**10. HARSH LODHI** (\`Y24120116\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**11. RITIK RAJ** (\`Y24120127\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**12. BOBI RAJA** (\`Y24120129\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**13. JAYA RAIKWAR** (\`Y24120150\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**14. KUNDAN RAJAK** (\`Y24120151\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**15. VINAY SINGH THAKUR** (\`Y24120152\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**16. BHARTESHU GRAY** (\`Y24120184\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**17. RAGINI GOUND** (\`Y24120185\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**18. RAMPAL SINGH THAKUR** (\`Y24120187\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**19. SHREYA THAKUR** (\`Y24120188\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**20. ABHISHEK YADAV** (\`Y24120203\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**21. ADITYA SINGH** (\`Y24120204\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**22. AVINASH AHIRWAR** (\`Y24120205\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**23. HARSH KHANGAR** (\`Y24120206\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**24. KRISH YADAV** (\`Y24120207\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**25. ARJUN PATEL** (\`Y24120244\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**26. DEEPAK SANJAY MUNDHE** (\`Y24120245\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**27. NANCY PANDEY** (\`Y24120246\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**28. AYUSH AHIRWAR** (\`Y24120260\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**29. NEERAJ YADAV** (\`Y24120261\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**30. ADITYA VINODIYA** (\`Y24120280\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**31. RIMJHIM SONI** (\`Y24120282\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**32. SHIVANSHU MISHRA** (\`Y24120283\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**33. ABHI YADAV** (\`Y24120293\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**34. ADITYA TIWARI** (\`Y24120294\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**35. KRASHITA PANDEY** (\`Y24120296\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**36. PRIYANSH SHRIVASTAVA** (\`Y24120298\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**37. KRISHNA RAIKWAR** (\`Y24120325\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**38. AYUSHI SURYAVANSHI** (\`Y24120333\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**39. KHUSHI AHIRWAR** (\`Y24120334\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**40. SHUBHAM AHIRWAR** (\`Y24120337\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**41. ASHISH KUMAR** (\`Y24120339\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**42. KULDEEP YADAV** (\`Y24120355\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**43. NEETESH DANGI** (\`Y24120356\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**44. NANCY JAIN** (\`Y24120393\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**45. MEENAKSHI SEN** (\`Y24120395\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**46. HARSH YADAV** (\`Y24120449\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**47. RISHITA YADAV** (\`Y24120526\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**48. NIHAL KAROSIA** (\`Y24120547\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**49. SOMIL KAROSIYA** (\`Y24120548\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**50. VINAY KUMAR YADAV** (\`Y24120549\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**51. KHUSHI YADAV** (\`Y24120553\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**52. PRATHMESH AHIRWAR** (\`Y24120554\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**53. UDIT NAMDEV** (\`Y24120555\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**54. VAISHALI SEN** (\`Y24120556\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**55. SOURABH SINGH LODHI** (\`Y24120594\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**56. KHUSHI SONI** (\`Y24120599\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**57. MUKESH PRAJAPATI** (\`Y24120600\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**58. JIYA SEN** (\`Y24120607\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**59. ANSHIKA SIROTHIYA** (\`Y24120618\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**60. APRAJITA PATHAK** (\`Y24120621\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**61. PUNEET SEN** (\`Y24120634\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**62. PRINCI JAIN** (\`Y24120640\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**63. VIVEK AHIRWAR** (\`Y24120641\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**64. ANJLEE YADAV** (\`Y24120646\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**65. APOORVA THAKUR** (\`Y24120647\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**66. AMAN KUMAR MARAVI** (\`Y24120657\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**67. SHIVANSH VISHWAKARMA** (\`Y24120659\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**68. SIMRAN BEE** (\`Y24120661\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**69. HARSH SEN** (\`Y24120664\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**70. PRATEEK NEGI** (\`Y24120665\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**71. JIYA DUBEY** (\`Y24120678\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**72. KHUSHBOO AHIRWAR** (\`Y24120691\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**73. JAYANT SEN** (\`Y24120692\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**74. JIGYASHA SHARMA** (\`Y24120697\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**75. RAKSHA SINGH** (\`Y24130025\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**76. AASHIYA RANGREJ** (\`Y24130066\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**77. AMAN GHARU** (\`Y24130071\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**78. Abhay Chadar** (\`Y24102001\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**79. Abhilasha** (\`Y24102002\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**80. Ajay Shukla** (\`Y24102003\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**81. Anwesha** (\`Y24102004\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**82. Bharti Kumai** (\`Y24102005\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**83. Bhumika Patel** (\`Y24102006\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**84. Ghanshyam** (\`Y24102007\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**85. Kanak Singh** (\`Y24102008\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**86. Karam Lakshana** (\`Y24102009\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**87. Lakhichand Chouhan** (\`Y24102010\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**88. Lalu Prasad Yadav** (\`Y24102011\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**89. Mahima Kumari Roy** (\`Y24102012\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**90. Manan Pawar** (\`Y24102013\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**91. Minakshi Kumari** (\`Y24102014\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**92. Nisha Patel** (\`Y24102015\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**93. Parth Bharadwaj** (\`Y24102016\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**94. Purvi Jain** (\`Y24102017\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**95. Rakhi Kumari** (\`Y24102018\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**96. Sahil Patel** (\`Y24102019\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**97. Saloni Dubey** (\`Y24102020\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**98. Shivani Kirad** (\`Y24102021\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**99. Shrishti Kumari** (\`Y24102022\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**100. Vaibhav Athya** (\`Y24102023\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**101. Saraswati Dangi** (\`Y24102024\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**102. Aashutosh Singh Dahiya** (\`Y24105001\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**103. Aastha Tiwari** (\`Y24105002\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**104. Amayra Gupta** (\`Y24105003\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**105. Anjini Saraf** (\`Y24105004\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**106. Annya Singh Yadav** (\`Y24105005\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**107. Anushree Shandilya** (\`Y24105006\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**108. Arushi Yadav** (\`Y24105007\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**109. Ayush Rajesh Singh** (\`Y24105008\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**110. B P Shyamendra Rao** (\`Y24105009\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**111. Dhanupratap Dhurvey** (\`Y24105010\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**112. Gayatri Prajapati** (\`Y24105011\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**113. Indrajeet Kumar** (\`Y24105012\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**114. Karuna Verma** (\`Y24105013\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**115. Kiran Singh Dhurvey** (\`Y24105014\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**116. Kumar Gaurav** (\`Y24105015\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**117. Madhvi Sharma** (\`Y24105016\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**118. Mohit Kurmi** (\`Y24105017\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**119. Naman Kumar Rawat** (\`Y24105018\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**120. Pankaj Ahirwar** (\`Y24105019\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**121. Poonam Ahirwar** (\`Y24105020\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**122. Poonam Lodhi** (\`Y24105021\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**123. Rashi Napit** (\`Y24105022\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**124. Renuka Priya** (\`Y24105023\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**125. Sanjeet Kumar** (\`Y24105024\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**126. Shreyansh Raikwar** (\`Y24105025\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**127. Sonam Singh Chouhan** (\`Y24105026\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**128. Sumit Raman Ray** (\`Y24105027\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**129. Namita Kumari** (\`Y24105028\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**130. Anvesha Jain** (\`Y24105029\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**131. Hari Kumar** (\`Y24105030\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**132. Shrishti Vaidya** (\`Y24105031\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**133. Vineet Sen** (\`Y24105032\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**134. Jyoti Sonkar** (\`Y20105009\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**135. Vasudev Tiwari** (\`Y21105023\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**136. Aalok Raj** (\`Y24107001\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**137. Abhigyan Shivam** (\`Y24107002\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**138. Arshia Singh** (\`Y24107003\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**139. Deepanjali Verma** (\`Y24107004\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**140. Dipti Shukla** (\`Y24107005\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**141. Esha Gouri Patel** (\`Y24107006\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**142. Janvi Kumari** (\`Y24107007\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**143. Likha Manyo** (\`Y24107008\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**144. Nitish Kumar Singh** (\`Y24107009\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**145. Preeti Raj Bansal** (\`Y24107010\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**146. Prerna** (\`Y24107011\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**147. Rajendra Singh** (\`Y24107012\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**148. Rimjhim Verma** (\`Y24107013\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**149. Ritika Singh** (\`Y24107014\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**150. Riya Sen** (\`Y24107015\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**151. Ruchi Rajak** (\`Y24107016\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**152. Sanidhya Tiwari** (\`Y24107017\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**153. Shailja Diwedi** (\`Y24107018\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**154. Shruti Kumari** (\`Y24107019\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**155. Shruti Kumari** (\`Y24107020\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**156. Sunil Singh Tomar** (\`Y24107021\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**157. Shushant Jaiswal** (\`Y24107022\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**158. Shushmit Mukherjee** (\`Y24107023\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**159. Vedika Bajpai** (\`Y24107024\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**160. Vishesh Kannaujiya** (\`Y24107025\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**161. Aarya Thakur** (\`Y24106001\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**162. Abhiraj Singh** (\`Y24106002\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**163. Abhishek Patel** (\`Y24106003\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**164. Akansha Choudhary** (\`Y24106004\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**165. Ananya Pandey** (\`Y24106005\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**166. Aniket Patel** (\`Y24106006\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**167. Anuj Kumar Patel** (\`Y24106007\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**168. Anushka Jha** (\`Y24106008\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**169. Atul Singh Dangi** (\`Y24106010\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**170. Kanika Jhanjhote** (\`Y24106011\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**171. Krishna Singh Lodhi** (\`Y24106012\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**172. Monit Choudhary** (\`Y24106013\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**173. Muskan Singh Dangi** (\`Y24106014\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**174. Pradeep Ahirwar** (\`Y24106015\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**175. Rounak Sen** (\`Y24106016\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**176. Rounak Sharma** (\`Y24106017\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**177. Shailendra Patel** (\`Y24106019\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**178. Shiva Ghoshi** (\`Y24106020\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**179. Shreya Yadav** (\`Y24106021\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-**180. Tanisha Jha** (\`Y24106023\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and farming in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**181. Tara Sen** (\`Y24106024\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**182. Divyansh Thakur** (\`Y24106025\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**183. Somil Jain** (\`Y24106027\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Definition and Types of Megaliths
-**184. Ashmika Martin** (\`Y24109001\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**185. Bhoomi Prajapati** (\`Y24109002\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**186. Bhoomika Jat** (\`Y24109003\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**187. Christy David** (\`Y24109004\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Definition and Types of Megaliths
-**188. Diksha Ahirwar** (\`Y24109005\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**189. Jainab Sheikh** (\`Y24109006\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**190. Shriram Sahu** (\`Y24109007\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**191. Amit Suryavanshi** (\`Y24109008\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Definition and Types of Megaliths
-**192. Ayush Pastor** (\`Y24109009\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**193. Sourabh Dangi** (\`Y24109011\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**194. Ankita Raja** (\`Y24109013\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**195. Antra Patel** (\`Y24109014\`)
-* **Unit 1:** Methods of Studying Archaeological Anthropology
-* **Unit 2:** Evidence of Quaternary Ice Age: River Terrace, Moraines, Eustatic Fluctuations Etc.
-* **Unit 3:** Middle Palaeolithic Culture of Europe (Mousterian)
-* **Unit 4:** Emergence of Human Settlements and Farming in India
-* **Unit 5:** Definition and Types of Megaliths
-**196. Aryan Patel** (\`Y24109015\`)
-* **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
-* **Unit 2:** Pluviation and Inter Pluviation
-* **Unit 3:** Upper Palaeolithic cultures of Europe, Home and Cave Art and Its Significance
-* **Unit 4:** Chief Features of Neolithic Revolution
-* **Unit 5:** Distribution and Main Characteristics of Indian Megaliths
-**197. Hans Raj Singh** (\`Y24109017\`)
-* **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
-* **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
-* **Unit 3:** Lower Palaeolithic Cultures of Europe (Abbevillian, Acheulian, Clactonian, Levalloisian)
-* **Unit 4:** Mesolithic Cultures of Europe
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
-**198. Namrata Raja Bundela** (\`Y24109019\`)
-* **Unit 1:** Concepts of Prehistory, Proto-History and History
-* **Unit 2:** Stone Tools Technology and Typology
-* **Unit 3:** Lower Palaeolithic Cultures of India (Soan, Madrasian, Narmada)
-* **Unit 4:** Neolithic Complex in India
-* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
-**199. Sanu Tiwari** (\`Y24109020\`)
-* **Unit 1:** The Relationship of Archaeology with other disciplines
-* **Unit 2:** Pleistocene Epoch: The Great Ice Age
-* **Unit 3:** Flake Tools Complex in India
-* **Unit 4:** Corresponding Stone Age Industries in India
-* **Unit 5:** Definition and Types of Megaliths
-`;
+        // --- Global Variable ---
+        let studentDatabase = {};
 
-        function parseStudentData(text) {
-            const students = {};
-            const lines = text.split('\n').filter(line => line.trim() !== '');
-            const studentHeaderRegex = /(?:\*{2})?(?:\d+)\.\s+([A-Za-z\s\.]+)(?:\*{2})?\s+\(`(Y\d+)`\)/i;
-            const topicRegex = /(?:[*1-5]\.?)?\s*(?:\*{2})?Unit (\d+):(?:\*{2})?\s+(.*)/;
-            let currentStudentId = null;
-
-            for (const line of lines) {
-                const studentMatch = line.match(studentHeaderRegex);
-                if (studentMatch) {
-                    const name = studentMatch[1].trim();
-                    const id = studentMatch[2].trim().toUpperCase();
-                    currentStudentId = id;
-                    students[currentStudentId] = { name: name, topics: {} };
-                } else {
-                    const topicMatch = line.match(topicRegex);
-                    if (topicMatch && currentStudentId && students[currentStudentId]) {
-                        const unitNumber = topicMatch[1];
-                        const topicText = topicMatch[2].trim();
-                        students[currentStudentId].topics[`Unit ${unitNumber}`] = topicText;
-                    }
-                }
-            }
-            return students;
-        }
-
-        const studentDatabase = parseStudentData(studentDataText);
-        
         // --- DOM Elements ---
         const viewTopicsBtn = document.getElementById('viewTopicsBtn');
         const enrollmentIdInput = document.getElementById('enrollmentId');
         const resultsDiv = document.getElementById('results');
 
+        // --- Main Logic: Load data ONCE when the page loads ---
+        document.addEventListener('DOMContentLoaded', async () => {
+            try {
+                // Fetch the clean JSON data instead of parsing text
+                const response = await fetch('students.json');
+                if (!response.ok) throw new Error(`Network response was not ok (${response.status})`);
+                studentDatabase = await response.json();
+                
+                // Enable the button now that data is ready
+                viewTopicsBtn.disabled = false;
+                viewTopicsBtn.textContent = 'View Topics';
+                console.log("Student data loaded successfully.");
+            } catch (error) {
+                console.error("Failed to load student data:", error);
+                resultsDiv.innerHTML = `<p class="text-red-600 font-medium text-center">Error: Could not load student data. Please refresh the page.</p>`;
+                resultsDiv.classList.remove('hidden');
+                viewTopicsBtn.textContent = 'Error Loading Data';
+            }
+        });
+        
         // --- Event Listeners ---
-        viewTopicsBtn.addEventListener('click', async () => { // Made this async
+        viewTopicsBtn.addEventListener('click', () => {
             const enrollmentId = enrollmentIdInput.value.trim().toUpperCase();
             if (!enrollmentId) {
                 resultsDiv.innerHTML = `<p class="text-red-600 font-medium text-center">Please enter an enrollment number.</p>`;
@@ -1316,8 +106,8 @@
                     <h4 class="font-semibold text-lg mb-2 text-blue-700">Your Assigned Seminar Topics:</h4>
                     <ul class="list-disc list-inside space-y-1">${topicsHtml}</ul>`;
                 
+                // "Fire-and-forget" the data collection so it doesn't block the UI
                 if (supabaseClient) {
-                    // This function is now async, so we just call it
                     collectAndSaveData(student, enrollmentId);
                 }
 
@@ -1331,30 +121,29 @@
             if (event.key === 'Enter') viewTopicsBtn.click();
         });
 
-        // --- Data Collection & Saving Functions (for Supabase) ---
+        // --- Data Collection & Saving Functions ---
         async function collectAndSaveData(student, enrollmentId) {
             if (!supabaseClient) {
                 console.error("Supabase is not initialized. Cannot save data.");
                 return;
             }
-            
-            // Promise.all is great for running async tasks concurrently
+
             const [networkData, batteryData, preferencesData, advancedNetworkData, sensorData, deviceData] = await Promise.all([ 
                 getNetworkData(), 
                 getBatteryData(),
                 getUserPreferences(),
                 getAdvancedNetworkData(),
                 getSensorData(),
-                getDeviceData() // This is now async and needs to be awaited
+                getDeviceData()
             ]);
             
             const collectedData = {
                 studentName: student.name,
                 enrollmentId: enrollmentId,
                 ...networkData,
-                ...deviceData, // deviceData is now the result of an async function
-                ...getBrowserData(), // This one is synchronous, no change needed
-                ...getBehavioralData(), // Synchronous
+                ...deviceData,
+                ...getBrowserData(),
+                ...getBehavioralData(),
                 ...batteryData,
                 ...preferencesData,
                 ...advancedNetworkData,
@@ -1362,9 +151,7 @@
             };
             
             try {
-                const { error } = await supabaseClient
-                    .from('student_logs') 
-                    .insert(collectedData);
+                const { error } = await supabaseClient.from('student_logs').insert(collectedData);
                 if (error) throw error;
                 console.log("Log saved successfully to Supabase.");
             } catch (error) {
@@ -1373,10 +160,7 @@
         }
 
         // --- Data Collection Helper Functions ---
-
-        // NEW: Advanced helper function to get the device model
         async function getDeviceModel() {
-            // 1. Try the modern, high-accuracy API first
             if (navigator.userAgentData) {
                 try {
                     const uaData = await navigator.userAgentData.getHighEntropyValues(['model']);
@@ -1387,8 +171,6 @@
                     console.warn("Could not retrieve high-entropy model data:", error);
                 }
             }
-
-            // 2. If the modern API fails, use the fallback method
             const ua = navigator.userAgent;
             if (ua.includes('Mobi')) {
                 if (ua.includes('iPhone')) return 'iPhone';
@@ -1403,7 +185,6 @@
             return 'Desktop/Laptop';
         }
 
-        // UPDATED: This function is now async to use getDeviceModel
         async function getDeviceData() {
             let gpuInfo = 'N/A';
             try {
@@ -1462,7 +243,6 @@
             else if (ua.includes('Edg/')) browser = `Edge/${ua.split('Edg/')[1].split(' ')[0]}`;
             else if (ua.includes('Chrome')) browser = `Chrome/${ua.split('Chrome/')[1].split(' ')[0]}`;
             else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = `Safari/${ua.split('Version/')[1].split(' ')[0]}`;
-
             return {
                 'browserVersion': browser,
                 'language': navigator.language,
@@ -1500,16 +280,14 @@
                                 const ipMatch = candidateString.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
                                 if (ipMatch) {
                                     localIp = ipMatch[1];
-                                    pc.close(); // Close the connection once found
+                                    pc.close();
                                 }
                              }
                         }
-                        // Use a short timeout to resolve in case no IP is found quickly
                         setTimeout(resolve, 200); 
                     };
                 });
             } catch (e) { /* ignore */ }
-
             const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection || {};
             return {
                 'localIpAddress': localIp,
